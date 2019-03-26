@@ -111,8 +111,39 @@ _END;
             function get_post ($conn, $var){
                 return $conn -> real_escape_string($_POST[$var]);
             }
+
+            function mysql_entities_fix_string($conn, $string)
+            {
+                return htmlentities(mysql_fix_string($conn, $string));
+            }
             
+            //sentencias para agregar una nueva tabla
+            $query = "create table autor (id int auto_increment key, nombre varchar(50), direccion
+            varchar(50), primary key(id))";
+            $resultado = $conn -> query($query);
+            if(!$resultado) echo "Hubo un fallo en la creacion de la tabla: " . $conn -> error;
+
+            //sentencias para eliminar una tabla
+            $query = "delete table autor";
+            $resultado = $conn -> query($query);
+            if(!$resultado)echo "Hubo un fallo en la eliminacion de la tabla: " . $conn -> error;
+
+            //insertar valores en la tabla
+            $query = "insert into autor values ('Sopo', 'Av los Remedios 12-15')";
+            $resultado = $conn -> query($query);
+            if (!$resultado) echo "Hubo un fallo en el ingreso de las filas: " . $conn -> error;
+
+            //uso de placeholders para evitar inyeccion en ingreso a la base de datos
+            $stmt = $conn -> prepare('INSERT INTO autor VALUES(?,?)');
+            $stmt -> bind_param($nomautor, $dirautor);
+            $nomautor = 'Emily Brontë';
+            $dirautor = 'Wuthering Heights';
+
+            $stmt->execute();
+            printf("%d Fila insertada.\n", $stmt->affected_rows);
+
             //cierre de las conexiones hechas
+            $stmt -> close();
             $conn -> close();
         ?>
     </body>
